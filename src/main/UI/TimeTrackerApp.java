@@ -15,9 +15,10 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
 
     // OBJECTS
     private Button recordBtn;
-    private Timer timer = new Timer();
-    private Text timeText = new Text("00:00:00"); // used elapsed time as timer text (hh:mm:ss)
+    private Timer timer;
+    private Text timeText;
 
+    // PRIMARY METHODS
     public static void main(String[] args) {
         System.out.println("main method");
         launch(args);   // Set up JavaFX and call start()
@@ -26,7 +27,8 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
     @Override
     public void start(Stage primaryStage) throws Exception {
         System.out.println("start method");
-
+        timer = new Timer();
+        timeText = new Text("00:00:00"); // used elapsed time as timer text (hh:mm:ss)
         primaryStage.setTitle("Time Tracker App");  // set the window title
         recordBtn = new Button("Record");
         recordBtn.setOnAction(this);    // look for handle() in this class
@@ -54,10 +56,12 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
         }
     }  // End of handle()
 
+
+    // HELPER METHODS
     private void startRecording() {
         timer.setIsRecording(true);
         System.out.println("Start recording time");
-        new Thread() {
+        Thread recordThread = new Thread() {
             public void run() {
                 timer.setStartSysTime();
                 while (timer.getIsRecording()) {
@@ -66,8 +70,10 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
                     timeText.setText(formatTime(timer.getElapsedTime()));
                 }
             }
-        }.start();
+        };
+        recordThread.setDaemon(true);
         recordBtn.setText("Stop");
+        recordThread.start();
     }
 
     private void stopRecording() {
