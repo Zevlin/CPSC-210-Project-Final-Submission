@@ -21,6 +21,8 @@ public class Timer extends Thread {
     }
 
     // METHODS
+
+    //MODIFIES: this
     public void setIsRecording(boolean b) {
         System.out.println("set isRecording method");
         isRecording = b;
@@ -31,6 +33,7 @@ public class Timer extends Thread {
         return isRecording;
     }
 
+    //MODIFIES: this
     public void setActivityName(String s) {
         System.out.println("set activity name method");
         activityName = s;
@@ -42,6 +45,7 @@ public class Timer extends Thread {
         return activityName;
     }
 
+    //MODIFIES: this
     public void setActivityType(String s) {
         System.out.println("set activity type method");
         activityType = s;
@@ -52,6 +56,7 @@ public class Timer extends Thread {
         return activityType;
     }
 
+    //MODIFIES: this
     public void setStartSysTime() {
         System.out.println("set start sys time method");
         startSysTime = System.currentTimeMillis();
@@ -62,6 +67,7 @@ public class Timer extends Thread {
         return startSysTime;
     }
 
+    //MODIFIES: this
     public void setEndSysTime() {
         System.out.println("set end sys time method");
         endSysTime = System.currentTimeMillis();
@@ -72,6 +78,8 @@ public class Timer extends Thread {
         return endSysTime;
     }
 
+    //REQUIRES: valid long values for endSysTime and startSysTime, where endSysTime >= startSysTime
+    //MODIFIES: this
     public void setElapsedTime() {
         System.out.println("set elapsed time method");
         elapsedTime = (int) ((getEndSysTime() - getStartSysTime()) / 1000.0);

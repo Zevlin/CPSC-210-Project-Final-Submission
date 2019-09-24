@@ -58,6 +58,9 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
 
 
     // HELPER METHODS
+
+    //REQUIRES: timer, recordBtn objects is not null
+    //MODIFIES: timer object.
     private void startRecording() {
         timer.setIsRecording(true);
         System.out.println("Start recording time");
@@ -82,7 +85,7 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
         recordBtn.setText("Record");
     }   // End of stopRecording()
 
-    public String formatTime(int n) {
+    private String formatTime(int n) {
         String timerTextStr = "";
         //Set hours if hrs are 10 or over
         if (n / 3600 >= 10) {
