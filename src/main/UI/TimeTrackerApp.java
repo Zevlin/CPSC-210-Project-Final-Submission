@@ -10,6 +10,9 @@ import javafx.stage.Stage;
 import javafx.scene.text.Text;
 
 import utilities.Timer;
+import utilities.Timestamp;
+
+import java.util.Date;
 
 public class TimeTrackerApp extends Application implements EventHandler<ActionEvent> {
 
@@ -17,6 +20,8 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
     private Button recordBtn;
     private Timer timer;
     private Text timeText;
+    private Text timestampCount;
+    private Timestamp timestamp;
 
     // PRIMARY METHODS
     public static void main(String[] args) {
@@ -28,7 +33,9 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
     public void start(Stage primaryStage) throws Exception {
         System.out.println("start method");
         timer = new Timer();
+        timestamp = new Timestamp(timer.getActivityType(), timer.getActivityName());
         timeText = new Text("00:00:00"); // used elapsed time as timer text (hh:mm:ss)
+        timestampCount = new Text("Timestamp Count: " + timestamp.getTimestampCount());
         primaryStage.setTitle("Time Tracker App");  // set the window title
         recordBtn = new Button("Record");
         recordBtn.setOnAction(this);    // look for handle() in this class
@@ -36,10 +43,12 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
         StackPane layout = new StackPane();
         layout.getChildren().add(recordBtn);
         layout.getChildren().add(timeText);
+        layout.getChildren().add(timestampCount);
 
         Scene scene = new Scene(layout, 500, 200);
         primaryStage.setScene(scene);
         timeText.setTranslateY(50);
+        timestampCount.setTranslateY(90);
         primaryStage.show();
     } // End of start()
 
@@ -68,6 +77,7 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
             public void run() {
                 timer.setStartSysTime();
                 while (timer.getIsRecording()) {
+                    manageTimestamp(timer.getElapsedTime());
                     timer.setEndSysTime();
                     timer.setElapsedTime();
                     timeText.setText(formatTime(timer.getElapsedTime()));
@@ -109,4 +119,19 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
         }
         return timerTextStr;
     }   // End of formatTime()
+
+    private void manageTimestamp(long elapsedTime) {
+        // check interval for saving
+        timestampCount.setText("Timestamp Count: " + timestamp.getTimestampCount());
+        if (elapsedTime % timestamp.saveInterval == 0) {
+            try {
+                timestamp.setActivityType(timer.getActivityType());
+                timestamp.setActivityName(timer.getActivityName());
+                timestamp.setLocalTime(new Date());
+                timestamp.logData();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
 }
