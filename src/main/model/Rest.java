@@ -30,4 +30,8 @@ public class Rest extends Timestamp {
     public String toString() {
         return "--/--," + getType() + "," + getDay() + "," + getDuration() + "\\n";
     }
+
+    public String getName() {
+        return "Rest";
+    }
 }

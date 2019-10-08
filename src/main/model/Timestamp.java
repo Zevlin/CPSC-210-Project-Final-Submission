@@ -22,7 +22,7 @@ public abstract class Timestamp implements Serializable {
     //METHODS
 
     //EFFECTS: returns the day value
-    protected Date getDay() {
+    public Date getDay() {
         return day;
     }
 
@@ -46,9 +46,9 @@ public abstract class Timestamp implements Serializable {
 
     //MODIFIES: this
     //REQUIRES: start and end are positive integers representing milliseconds
-    //EFFECTS: update duration to match elapsed time in seconds { (start - end) / 1000 }
+    //EFFECTS: update duration to match elapsed time in seconds { (end - start) / 1000 }
     private void setDuration() {
-        duration = (int)((getStart() - getEnd()) / 1000);
+        duration = (int)((getEnd() - getStart()) / 1000);
     }
 
     //EFFECTS: returns duration value
@@ -67,5 +67,10 @@ public abstract class Timestamp implements Serializable {
     //EFFECTS: produces a string representation of the class in csv line format
     public abstract String toString();
 
+    //EFFECTS: return the name value, if applicable
+    public abstract String getName();
+
+    //EFFECT: return the type value, if applicable
+    public abstract String getType();
 
 }
