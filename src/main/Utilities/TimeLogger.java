@@ -15,8 +15,8 @@ public class TimeLogger extends Thread implements Saveable, Loadable {
     // FIELDS
     private int updateInterval = 999;
     private ArrayList<Timestamp> timeLog;
-    private transient File dir = new File(".\\Data\\");
-    private transient File file = new File(dir.getPath() + "timeLog.csv");
+    private transient File dir = new File("Data");
+    private transient File file = new File(".\\" + dir.getPath() + "\\" + "timeLog.csv");
 
     // CONSTRUCTOR
     public TimeLogger() throws Exception {
@@ -100,6 +100,7 @@ public class TimeLogger extends Thread implements Saveable, Loadable {
             out.close();
         } catch (FileNotFoundException fnf) {
             if (!dir.exists()) {
+                System.out.println("Creating directory " + dir.getPath());
                 dir.mkdir();
                 saveData(l);
             }
