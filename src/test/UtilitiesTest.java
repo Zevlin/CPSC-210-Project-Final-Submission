@@ -1,4 +1,5 @@
 import model.Activity;
+import model.IntervalTooSmallException;
 import model.Rest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,30 @@ public class UtilitiesTest {
         assertEquals("Rest", logger.getStampName());
         assertEquals(0, logger.getStampDuration());
         assertEquals(day.toString(), logger.getStampStart());
+    }
+
+    @Test
+    public void expectedTimeLoggerIntervalTooSmallTest() {
+        try {
+            logger.getUpdateInterval();
+            fail("No update interval exception detected.");
+        }
+        catch (IntervalTooSmallException its) {
+            System.out.println("IntervalTooSmallException caught");
+        }
+    }
+
+    @Test
+    public void unexpectedTimeLoggerIntervalTooSmallTest() {
+        try {
+            logger.setUpdateInterval(1000);
+            logger.getUpdateInterval();
+            logger.setUpdateInterval(1001);
+            logger.getUpdateInterval();
+
+        } catch (IntervalTooSmallException its) {
+            fail("IntervalTooSmallException was not expected");
+        }
     }
 
     @Test

@@ -2,22 +2,21 @@ package utilities;
 
 
 import model.Activity;
+import model.IntervalTooSmallException;
 import model.Rest;
 import model.Timestamp;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class TimeLogger extends Thread implements Saveable, Loadable {
 
     // FIELDS
-    private static final int INTERVAL = 3000;
+    private int updateInterval = 999;
     private ArrayList<Timestamp> timeLog;
-    private transient File file = new File(".\\Data\\timeLog.csv");
+    private transient File dir = new File(".\\Data\\");
+    private transient File file = new File(dir.getPath() + "timeLog.csv");
 
     // CONSTRUCTOR
     public TimeLogger() throws Exception {
@@ -27,6 +26,21 @@ public class TimeLogger extends Thread implements Saveable, Loadable {
     }
 
     // METHODS
+
+    //EFFECTS: returns update interval if it is 1000 or more, else throws an exception
+    public int getUpdateInterval() throws IntervalTooSmallException {
+        if (updateInterval >= 1000) {
+            return updateInterval;
+        } else {
+            throw new IntervalTooSmallException("updateInterval " + updateInterval + " is less than 1000.");
+        }
+    }
+
+    //REQUIRES: i is a positive integer greater than 1000
+    //MODIFIES: this
+    public void setUpdateInterval(int i) {
+        updateInterval = i;
+    }
 
     //MODIFIES: this
     //EFFECTS: adds a new activity to the bottom of the ArrayList
@@ -77,29 +91,39 @@ public class TimeLogger extends Thread implements Saveable, Loadable {
     //MODIFIES: timeLog.csv
     //EFFECTS: saves lines to csv file
     @Override
-    public void saveData(ArrayList l) throws Exception {
-        PrintWriter out = new PrintWriter(new FileOutputStream(file));
-        for (Timestamp e: timeLog) {
-            out.println(e.toString());
+    public void saveData(ArrayList l) {
+        try {
+            PrintWriter out = new PrintWriter(new FileOutputStream(file));
+            for (Timestamp e : timeLog) {
+                out.println(e.toString());
+            }
+            out.close();
+        } catch (FileNotFoundException fnf) {
+            if (!dir.exists()) {
+                dir.mkdir();
+                saveData(l);
+            }
         }
-        out.close();
     }
 
     //MODIFIES:
-    public ArrayList loadData() throws Exception {
+    public ArrayList loadData() {
         ArrayList<String> list = new ArrayList<>();
-        if (file.exists()) {
+        try {
             Scanner in = new Scanner(new FileInputStream(file));
             while (in.hasNext()) {
                 list.add(in.nextLine());
             }
             in.close();
+            System.out.println("Loaded Data:");
+            for (String s: list) {
+                System.out.println(s);
+            }
+            return list;
+        } catch (FileNotFoundException fnf) {
+            System.out.println("File " + file + " does not exist.");
+        } finally {
+            return list;
         }
-
-        System.out.println("Loaded Data:");
-        for (String s: list) {
-            System.out.println(s);
-        }
-        return list;
     }
 }

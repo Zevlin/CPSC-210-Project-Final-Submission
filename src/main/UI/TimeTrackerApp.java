@@ -21,10 +21,11 @@ import model.Rest;
 public class TimeTrackerApp extends Application implements EventHandler<ActionEvent> {
 
     // FIELDS
-    private static final int UPDATE_INTERVAL = 1000;
     private Button workBtn;
     private Button restBtn;
     private TimeLogger timeLogger;
+    private Timer timer;
+    private TimestampUpdater updater;
     private Text dateText;
     private Text startText;
     private Text durationText;
@@ -42,13 +43,17 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
     // METHODS
     @Override
     public void start(Stage primaryStage) throws Exception {
-        System.out.println("start method");
-        timeLogger = new TimeLogger();
-        initializeGUI();
-        sortGUI(primaryStage);
-        TimestampUpdater updater = new TimestampUpdater();
-        Timer timer = new Timer(true);
-        timer.scheduleAtFixedRate(updater, 0, UPDATE_INTERVAL);
+        try {
+            System.out.println("start method");
+            timeLogger = new TimeLogger();
+            initializeGUI();
+            sortGUI(primaryStage);
+            updater = new TimestampUpdater();
+            timer = new Timer(true);
+            timer.scheduleAtFixedRate(updater, 0, timeLogger.getUpdateInterval());
+        } catch (IllegalArgumentException iae) {
+            timer.scheduleAtFixedRate(updater, 0, 1000);
+        }
     } // End of start()
 
     @Override
