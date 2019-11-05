@@ -95,32 +95,53 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
     // MODIFIES: this
     // EFFECTS: creates layout pattern for GUI and places initialized elements into it, then calls loadGUI()
     public void sortGUI(Stage primaryStage) {
-        // current activity VBox
-        VBox currentActivityBox = new VBox();
-        currentActivityBox.setSpacing(10);
-        currentActivityBox.getChildren().addAll(currentActivityTxt, startText, durationText);
-
-        // start new task VBox
-        VBox newTaskBox = new VBox();
-        newTaskBox.setSpacing(10);
-        newTaskBox.getChildren().addAll(newTaskTxt, workBtn, restBtn);
-
-        // time log VBox
-        VBox timeLogBox = new VBox();
-        timeLogBox.getChildren().addAll(dateText, dateUnderlineTxt);
-
-        // wrapper boxes
-        VBox rightSideBox = new VBox();
-        rightSideBox.getChildren().addAll(timeLogBox);
-
-        VBox leftSideBox = new VBox();
-        leftSideBox.setSpacing(30);
-        leftSideBox.getChildren().addAll(currentActivityBox, newTaskBox);
+        VBox currentActivityBox = makeCurrentActivityBox();
+        VBox newTaskBox = makeNewTaskBox();
+        VBox timeLogBox = makeTimeLogBox();
+        VBox rightSideBox = makeRightSideBox(timeLogBox);
+        VBox leftSideBox = makeLeftSideBox(currentActivityBox, newTaskBox);
 
         HBox wrapperBox = new HBox();
         wrapperBox.getChildren().addAll(leftSideBox, rightSideBox);
 
         loadGUI(primaryStage, wrapperBox);
+    }
+
+    private VBox makeLeftSideBox(VBox currentActivityBox, VBox newTaskBox) {
+        VBox leftSideBox = new VBox();
+        leftSideBox.setSpacing(30);
+        leftSideBox.getChildren().addAll(currentActivityBox, newTaskBox);
+        return leftSideBox;
+    }
+
+    private VBox makeRightSideBox(VBox timeLogBox) {
+        // wrapper boxes
+        VBox rightSideBox = new VBox();
+        rightSideBox.getChildren().addAll(timeLogBox);
+        return rightSideBox;
+    }
+
+    private VBox makeTimeLogBox() {
+        // time log VBox
+        VBox timeLogBox = new VBox();
+        timeLogBox.getChildren().addAll(dateText, dateUnderlineTxt);
+        return timeLogBox;
+    }
+
+    private VBox makeNewTaskBox() {
+        // start new task VBox
+        VBox newTaskBox = new VBox();
+        newTaskBox.setSpacing(10);
+        newTaskBox.getChildren().addAll(newTaskTxt, workBtn, restBtn);
+        return newTaskBox;
+    }
+
+    private VBox makeCurrentActivityBox() {
+        // current activity VBox
+        VBox currentActivityBox = new VBox();
+        currentActivityBox.setSpacing(10);
+        currentActivityBox.getChildren().addAll(currentActivityTxt, startText, durationText);
+        return currentActivityBox;
     }
 
     // MODIFIES: this
