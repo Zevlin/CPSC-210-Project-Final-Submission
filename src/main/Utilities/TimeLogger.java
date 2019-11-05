@@ -4,7 +4,7 @@ package utilities;
 import model.Activity;
 import model.IntervalTooSmallException;
 import model.Rest;
-import model.Timestamp;
+import model.TimeStamp;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ public class TimeLogger extends Thread implements Saveable, Loadable {
 
     // FIELDS
     private int updateInterval = 999;
-    private ArrayList<Timestamp> timeLog;
+    private ArrayList<TimeStamp> timeLog;
     private transient File dir = new File("Data");
     private transient File file = new File(".\\" + dir.getPath() + "\\" + "timeLog.csv");
 
@@ -56,8 +56,8 @@ public class TimeLogger extends Thread implements Saveable, Loadable {
         timeLog.add(t);
     }
 
-    //MODIFIES: Timestamp
-    //EFFECTS: calls the update() method to update Timestamp values
+    //MODIFIES: TimeStamp
+    //EFFECTS: calls the update() method to update TimeStamp values
     public void updateStamp() throws Exception {
         timeLog.get(timeLog.size() - 1).update();
         saveData(timeLog);
@@ -65,7 +65,7 @@ public class TimeLogger extends Thread implements Saveable, Loadable {
 
 //    //EFFECTS: prints a log of the current timeLog to console
 //    public void printLog() {
-//        for (Timestamp t: timeLog) {
+//        for (TimeStamp t: timeLog) {
 //            System.out.println(t.toString());
 //        }
 //    }
@@ -94,7 +94,7 @@ public class TimeLogger extends Thread implements Saveable, Loadable {
     public void saveData(ArrayList l) {
         try {
             PrintWriter out = new PrintWriter(new FileOutputStream(file));
-            for (Timestamp e : timeLog) {
+            for (TimeStamp e : timeLog) {
                 out.println(e.toString());
             }
             out.close();

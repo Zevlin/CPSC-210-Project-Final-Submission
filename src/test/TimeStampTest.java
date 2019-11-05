@@ -1,4 +1,4 @@
-import model.Timestamp;
+import model.TimeStamp;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -7,9 +7,9 @@ import model.Rest;
 
 import java.util.Date;
 
-public class TimestampTest {
-    Timestamp activity;
-    Timestamp rest;
+public class TimeStampTest {
+    TimeStamp activity;
+    TimeStamp rest;
     long start;
     Date day;
 

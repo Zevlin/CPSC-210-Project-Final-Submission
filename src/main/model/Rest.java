@@ -1,6 +1,6 @@
 package model;
 
-public class Rest extends Timestamp {
+public class Rest extends TimeStamp {
 
     //FIELDS
     private String type;
@@ -13,16 +13,7 @@ public class Rest extends Timestamp {
 
     //METHODS
 
-    //MODIFIES: this
-    //EFFECTS: changes type value to input value
-    public void setType(String t) {
-        type = t;
-    }
 
-    //EFFECTS: returns type value
-    public String getType() {
-        return type;
-    }
 
     //EFFECTS: returns a string representing the object in CSV line format
     //  --/--,type, day, duration \n

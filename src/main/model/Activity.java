@@ -1,10 +1,9 @@
 package model;
 
-public class Activity extends Timestamp {
+public class Activity extends TimeStamp {
 
     //FIELDS
     private String name;
-    private String type;
 
     //CONSTRUCTOR
     public Activity(String n, String t) {
@@ -24,17 +23,6 @@ public class Activity extends Timestamp {
     //EFFECTS: returns name value
     public String getName() {
         return name;
-    }
-
-    //MODIFIES: this
-    //EFFECTS: changes type value to input value
-    public void setType(String t) {
-        type = t;
-    }
-
-    //EFFECTS: returns type value
-    public String getType() {
-        return type;
     }
 
     //EFFECTS: returns a string representing the object in CSV line format

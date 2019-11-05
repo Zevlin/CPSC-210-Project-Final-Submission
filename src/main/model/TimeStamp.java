@@ -3,16 +3,17 @@ package model;
 import java.io.*;
 import java.util.Date;
 
-public abstract class Timestamp implements Serializable {
+public abstract class TimeStamp implements Serializable {
 
     //FIELDS
     private Date day;
     private long start;
     private long end;
     private int duration;
+    private String type;
 
     //CONSTRUCTOR
-    public Timestamp() {
+    public TimeStamp() {
         day = new Date();
         start = System.currentTimeMillis();
         end = System.currentTimeMillis();
@@ -20,6 +21,17 @@ public abstract class Timestamp implements Serializable {
     }
 
     //METHODS
+
+    //MODIFIES: this
+    //EFFECTS: changes type value to input value
+    public void setType(String t) {
+        type = t;
+    }
+
+    //EFFECTS: returns type value
+    public String getType() {
+        return type;
+    }
 
     //EFFECTS: returns the day value
     public Date getDay() {
@@ -70,7 +82,5 @@ public abstract class Timestamp implements Serializable {
     //EFFECTS: return the name value, if applicable
     public abstract String getName();
 
-    //EFFECT: return the type value, if applicable
-    public abstract String getType();
 
 }
