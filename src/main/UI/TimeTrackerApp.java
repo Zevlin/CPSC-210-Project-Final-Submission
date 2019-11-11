@@ -9,12 +9,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import network.ReadWebPage;
 import utilities.TimeLogger;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
+
 import model.Activity;
 import model.Rest;
 
@@ -45,6 +45,7 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
     public void start(Stage primaryStage) throws Exception {
         try {
             System.out.println("start method");
+            new ReadWebPage().rwp();
             timeLogger = new TimeLogger();
             initializeGUI();
             sortGUI(primaryStage);
@@ -161,6 +162,8 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
 
     }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // TimerTask Class
     private class TimestampUpdater extends TimerTask {
 
@@ -175,6 +178,8 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
             }
         }
     }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private String formatTime(int n) {
         String timerTextStr = "";
