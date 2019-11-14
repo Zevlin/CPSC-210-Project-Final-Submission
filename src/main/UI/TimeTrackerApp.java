@@ -3,12 +3,16 @@ package ui;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import network.ReadWebPage;
 import utilities.TimeLogger;
 
@@ -18,9 +22,14 @@ import java.util.*;
 import model.Activity;
 import model.Rest;
 
+
 public class TimeTrackerApp extends Application implements EventHandler<ActionEvent> {
 
     // FIELDS
+    private static final int WWIDTH = 896;
+    private static final int WHEIGHT = 560;
+    ImageView iv;
+    private Button closeBtn;
     private Button workBtn;
     private Button restBtn;
     private TimeLogger timeLogger;
@@ -65,6 +74,8 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
             timeLogger.newActivity(new Activity("Study", "Work"));
         } else if (event.getSource() == restBtn) {
             timeLogger.newRest(new Rest("Rest"));
+        } else if (event.getSource() == closeBtn) {
+            System.exit(0);
         }
     }  // End of handle()
 
@@ -96,60 +107,85 @@ public class TimeTrackerApp extends Application implements EventHandler<ActionEv
     // MODIFIES: this
     // EFFECTS: creates layout pattern for GUI and places initialized elements into it, then calls loadGUI()
     public void sortGUI(Stage primaryStage) {
-        VBox currentActivityBox = makeCurrentActivityBox();
-        VBox newTaskBox = makeNewTaskBox();
-        VBox timeLogBox = makeTimeLogBox();
-        VBox rightSideBox = makeRightSideBox(timeLogBox);
-        VBox leftSideBox = makeLeftSideBox(currentActivityBox, newTaskBox);
+        HBox topBar = makeTopBar();
+
+        HBox bodyWrapper = makeBodyWrapper(topBar);
+
+        VBox innerWrapperBox = new VBox();
+        innerWrapperBox.setMinHeight(WHEIGHT);
+        innerWrapperBox.setMinWidth(WWIDTH);
+        innerWrapperBox.getChildren().addAll(topBar, bodyWrapper);
 
         HBox wrapperBox = new HBox();
-        wrapperBox.getChildren().addAll(leftSideBox, rightSideBox);
-
+        wrapperBox.getChildren().add(innerWrapperBox);
+        wrapperBox.minWidth(WWIDTH);
+        wrapperBox.minHeight(WHEIGHT);
+        wrapperBox.setPadding(new Insets(0,0,0,0));
         loadGUI(primaryStage, wrapperBox);
     }
 
-    private VBox makeLeftSideBox(VBox currentActivityBox, VBox newTaskBox) {
-        VBox leftSideBox = new VBox();
-        leftSideBox.setSpacing(30);
-        leftSideBox.getChildren().addAll(currentActivityBox, newTaskBox);
-        return leftSideBox;
+    private HBox makeBodyWrapper(HBox topBar) {
+        HBox bodyWrapper = new HBox();
+        bodyWrapper.setMinHeight(WHEIGHT - topBar.getHeight());
+        bodyWrapper.setMaxHeight(WHEIGHT - topBar.getHeight());
+        bodyWrapper.setMinWidth(WWIDTH);
+        bodyWrapper.setMaxWidth(WWIDTH);
+        bodyWrapper.setStyle("-fx-background-color: rgba(46, 45, 71, 1.0);");
+
+        VBox sideBar = makeSideBar(bodyWrapper);
+
+        bodyWrapper.getChildren().addAll(sideBar);
+        return bodyWrapper;
     }
 
-    private VBox makeRightSideBox(VBox timeLogBox) {
-        // wrapper boxes
-        VBox rightSideBox = new VBox();
-        rightSideBox.getChildren().addAll(timeLogBox);
-        return rightSideBox;
+    private VBox makeSideBar(HBox bodyWrapper) {
+        VBox sideBar = new VBox();
+        sideBar.setMinWidth(200);
+        sideBar.setMaxWidth(200);
+        sideBar.setMinHeight(bodyWrapper.getHeight());
+        sideBar.setStyle("-fx-background-color: rgba(60, 56, 128, 1.0);");
+        return sideBar;
     }
 
-    private VBox makeTimeLogBox() {
-        // time log VBox
-        VBox timeLogBox = new VBox();
-        timeLogBox.getChildren().addAll(dateText, dateUnderlineTxt);
-        return timeLogBox;
+    private HBox makeTopBar() {
+        HBox topBar = new HBox();
+        topBar.setPadding(new Insets(0, 30, 0, 30));
+        topBar.setAlignment(Pos.CENTER_RIGHT);
+        topBar.setPrefWidth(WWIDTH);
+        topBar.setMinHeight(70);
+        topBar.setMaxHeight(70);
+        String topBarCSS = "-fx-background-color: rgba(67, 63, 145, 1.0);";
+        topBar.setStyle(topBarCSS);
+        makeCloseBtn();
+        topBar.getChildren().add(closeBtn);
+        return topBar;
     }
 
-    private VBox makeNewTaskBox() {
-        // start new task VBox
-        VBox newTaskBox = new VBox();
-        newTaskBox.setSpacing(10);
-        newTaskBox.getChildren().addAll(newTaskTxt, workBtn, restBtn);
-        return newTaskBox;
-    }
-
-    private VBox makeCurrentActivityBox() {
-        // current activity VBox
-        VBox currentActivityBox = new VBox();
-        currentActivityBox.setSpacing(10);
-        currentActivityBox.getChildren().addAll(currentActivityTxt, startText, durationText);
-        return currentActivityBox;
+    private void makeCloseBtn() {
+        closeBtn = new Button();
+        closeBtn.setOnAction(this);
+        closeBtn.setMinWidth(20);
+        closeBtn.setMaxWidth(20);
+        closeBtn.setMinHeight(20);
+        closeBtn.setMaxHeight(20);
+        closeBtn.setStyle("-fx-border-color: transparent;"
+                + "-fx-border-width: 0;"
+                + "-fx-background-radius: 0;"
+                + "-fx-background-color: transparent;"
+                + "-fx-background-color: rgba(67, 63, 145, 1.0);"
+                + "-fx-background-position: center center;"
+                + "-fx-background-repeat: no-repeat;"
+                + "-fx-background-image: url(\"images/close.png\");");
     }
 
     // MODIFIES: this
     // EFFECTS: displays a window with the GUI inside of it
     private void loadGUI(Stage primaryStage, HBox wrapperBox) {
         primaryStage.setTitle("Time Tracker App");  // set the window title
-        Scene scene = new Scene(wrapperBox, 500, 200);
+        primaryStage.initStyle(StageStyle.UNDECORATED);
+        Scene scene = new Scene(wrapperBox, WWIDTH, WHEIGHT);
+        primaryStage.sizeToScene();
+        primaryStage.setResizable(false);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
