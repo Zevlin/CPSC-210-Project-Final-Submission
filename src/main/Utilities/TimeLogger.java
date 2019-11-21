@@ -15,7 +15,7 @@ import java.util.Scanner;
 public class TimeLogger extends Observable implements Saveable, Loadable {
 
     // FIELDS
-    private int updateInterval = 999;
+    private int updateInterval = 17;
     private ArrayList<TimeStamp> timeLog;
     private transient File dir = new File("Data");
     private transient File file = new File(".\\" + dir.getPath() + "\\" + "timeLog.csv");
@@ -97,6 +97,7 @@ public class TimeLogger extends Observable implements Saveable, Loadable {
     public ArrayList<TimeStamp> getLogList() {
         return timeLog;
     }
+
     //MODIFIES: timeLog.csv
     //EFFECTS: saves lines to csv file
     @Override
