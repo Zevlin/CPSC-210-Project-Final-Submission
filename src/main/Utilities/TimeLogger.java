@@ -24,7 +24,6 @@ public class TimeLogger extends Observable implements Saveable, Loadable {
     public TimeLogger() throws Exception {
         timeLog = new ArrayList<>();
         loadData();
-        newRest(new Rest("Rest"));
         addObserver(new TimeLoggerObserver());
     }
 
@@ -95,6 +94,9 @@ public class TimeLogger extends Observable implements Saveable, Loadable {
         return timeLog.get(timeLog.size() - 1).getDay().toString();
     }
 
+    public ArrayList<TimeStamp> getLogList() {
+        return timeLog;
+    }
     //MODIFIES: timeLog.csv
     //EFFECTS: saves lines to csv file
     @Override

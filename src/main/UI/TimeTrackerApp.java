@@ -1,6 +1,8 @@
 package ui;
 
 import utilities.TimeLogger;
+
+import java.sql.Time;
 import java.util.*;
 import java.util.Timer;
 import java.io.*;
@@ -11,13 +13,28 @@ public class TimeTrackerApp {
     private TimeLogger timeLogger;
     private Timer timer;
     private TimestampUpdater updater;
+    MainFrame window;
 
 
     // PRIMARY METHODS
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         System.out.println("main method");
-        MainFrame window = new MainFrame();
+        TimeTrackerApp tta = new TimeTrackerApp();
+        tta.start();
     } // end of main()
+
+    private void start() throws Exception {
+        try {
+            System.out.println("start method");
+            timeLogger = new TimeLogger();
+            window = new MainFrame(timeLogger);
+            updater = new TimestampUpdater();
+            timer = new Timer(true);
+            timer.scheduleAtFixedRate(updater, 0, timeLogger.getUpdateInterval());
+        } catch (IllegalArgumentException iae) {
+            timer.scheduleAtFixedRate(updater, 0, 1000);
+        }
+    }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,7 +47,7 @@ public class TimeTrackerApp {
             try {
                 System.out.println("updating GUI");
                 timeLogger.updateStamp();
-//                updateGUI();
+                window.update();
             } catch (Exception e) {
                 System.out.println("error updating GPU with exception " + e.getMessage());
             }
