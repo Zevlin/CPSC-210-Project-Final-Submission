@@ -11,12 +11,12 @@ public class Pie extends JComponent {
     public int startAngle = 0;
     public int defaultSize = 400;
     public int size = defaultSize;
-    public int xOffset = 107;
-    public int yOffset = 70;
+    public int xoffset = 107;
+    public int yoffset = 70;
 
     @Override
     public void paint(Graphics p) {
         p.setColor(col);
-        p.fillArc(xOffset,yOffset,size,size,startAngle,arc);
+        p.fillArc(xoffset, yoffset,size,size,startAngle,arc);
     }
 }

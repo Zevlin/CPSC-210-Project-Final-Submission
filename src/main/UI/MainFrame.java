@@ -65,6 +65,13 @@ public class MainFrame {
     private Pie hobbyPie;
     private Pie restPie;
     private JLabel piechart;
+    private int workSum = 0;
+    private int studySum = 0;
+    private int travelSum = 0;
+    private int eatSum = 0;
+    private int shopSum = 0;
+    private int hobbySum = 0;
+    private int restSum = 0;
 
     private TimeLogger timeLogger;
 
@@ -95,7 +102,9 @@ public class MainFrame {
         sidestatsTotalTimeLogged = tempTTL;
         averageTaskLength.setText(formatTime(taskDurationSum / taskCount));
         sidestatsAverageTaskLength = taskDurationSum / taskCount;
-        updateChart();
+        calculateTaskSums();
+        updatePieValues();
+        resetTaskSums();
     }
 
     // HELPER METHODS
@@ -129,10 +138,15 @@ public class MainFrame {
         nameScreenText.setForeground(new Color(255,255,255,255));
 
         nameField = new JTextField(15);
+        formNameField(nameScreenText);
+
+        window.add(namescreen);
+    }
+
+    private void formNameField(JLabel nameScreenText) {
         nameField.setFont(new Font("Century Gothic", Font.PLAIN, 40));
         nameField.setForeground(new Color(255,255,255,255));
         nameField.setBackground(new Color(49, 55, 130, topBarAlpha));
-        //nameField.setOpaque(false);
         nameField.setBorder(null);
         nameField.setHorizontalAlignment(0);
         namescreen.add(Box.createRigidArea(new Dimension(0, 350)));
@@ -144,13 +158,10 @@ public class MainFrame {
             public void actionPerformed(ActionEvent e) {
                 profileName = nameField.getText();
                 name.setText("<html><p>hello   <b>" + profileName + "</b></p></html>");
-                Executors.newSingleThreadScheduledExecutor()
-                        .scheduleAtFixedRate(MainFrame.this::shrinkNameScreen,
-                                0, 17, TimeUnit.MILLISECONDS);
+                Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(MainFrame.this::shrinkNameScreen,
+                        0, 17, TimeUnit.MILLISECONDS);
             }
         });
-
-        window.add(namescreen);
     }
 
     private void shrinkNameScreen() {
@@ -174,6 +185,12 @@ public class MainFrame {
 
         topBar.add(Box.createRigidArea(new Dimension(900, 0)));
 
+        formCloseBtn();
+
+        window.add(topBar);
+    }
+
+    private void formCloseBtn() {
         ImageIcon closeImg = new ImageIcon("src/main/images/close.png");
         closeBtn = new JButton();
         closeBtn.setSize(22, 22);
@@ -189,8 +206,6 @@ public class MainFrame {
                 System.exit(1);
             }
         });
-
-        window.add(topBar);
     }
 
     private void formSideBar() {
@@ -248,6 +263,40 @@ public class MainFrame {
         tasksList.setLayout(new BoxLayout(tasksList, BoxLayout.Y_AXIS));
         tasksList.setBackground(new Color(39, 43, 85, sideBarAlpha));
 
+        formTaskRow1(tasksList);
+
+        formTaskRow2(tasksList);
+
+        tasksList.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        buttonListeners();
+
+        return tasksList;
+    }
+
+    private void formTaskRow2(JPanel tasksList) {
+        JPanel taskRow2 = new JPanel();
+        taskRow2.setSize(sideBarWidth, 50);
+        taskRow2.setOpaque(false);
+        shopBtn.setName("shop");
+        hobbyBtn.setName("hobby");
+        restBtn.setName("rest");
+        formatTaskButton(shopBtn, false);
+        formatTaskButton(hobbyBtn, false);
+        formatTaskButton(restBtn, true);
+        addBtnsTaskRow2(taskRow2, shopBtn, hobbyBtn, restBtn);
+        tasksList.add(taskRow2);
+    }
+
+    private void addBtnsTaskRow2(JPanel taskRow2, JButton shopBtn, JButton hobbyBtn, JButton restBtn) {
+        taskRow2.add(shopBtn);
+        taskRow2.add(Box.createRigidArea(new Dimension(taskBtnGap, 0)));
+        taskRow2.add(hobbyBtn);
+        taskRow2.add(Box.createRigidArea(new Dimension(taskBtnGap, 0)));
+        taskRow2.add(restBtn);
+    }
+
+    private void formTaskRow1(JPanel tasksList) {
         JPanel taskRow1 = new JPanel();
         taskRow1.setSize(sideBarWidth, 50);
         taskRow1.setOpaque(false);
@@ -259,6 +308,11 @@ public class MainFrame {
         formatTaskButton(studyBtn, false);
         formatTaskButton(travelBtn, false);
         formatTaskButton(eatBtn, false);
+        addBtnsTaskRow1(taskRow1);
+        tasksList.add(taskRow1);
+    }
+
+    private void addBtnsTaskRow1(JPanel taskRow1) {
         taskRow1.add(workBtn);
         taskRow1.add(Box.createRigidArea(new Dimension(taskBtnGap, 0)));
         taskRow1.add(studyBtn);
@@ -266,64 +320,25 @@ public class MainFrame {
         taskRow1.add(travelBtn);
         taskRow1.add(Box.createRigidArea(new Dimension(taskBtnGap, 0)));
         taskRow1.add(eatBtn);
-        tasksList.add(taskRow1);
-
-        JPanel taskRow2 = new JPanel();
-        taskRow2.setSize(sideBarWidth, 50);
-        taskRow2.setOpaque(false);
-        shopBtn.setName("shop");
-        hobbyBtn.setName("hobby");
-        restBtn.setName("rest");
-        formatTaskButton(shopBtn, false);
-        formatTaskButton(hobbyBtn, false);
-        formatTaskButton(restBtn, true);
-        taskRow2.add(shopBtn);
-        taskRow2.add(Box.createRigidArea(new Dimension(taskBtnGap, 0)));
-        taskRow2.add(hobbyBtn);
-        taskRow2.add(Box.createRigidArea(new Dimension(taskBtnGap, 0)));
-        taskRow2.add(restBtn);
-        tasksList.add(taskRow2);
-
-        tasksList.add(Box.createRigidArea(new Dimension(0, 10)));
-
-        buttonListeners();
-
-        return tasksList;
     }
 
     private void buttonListeners() {
-        workBtn.addActionListener(new ActionListener() {
+        workStudyBtnListeners();
+
+        travelEatBtnListeners();
+
+        hobbyShopBtnListeners();
+
+        restBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 formatTaskButton(activeBtn, false);
-                formatTaskButton(workBtn, true);
+                formatTaskButton(restBtn, true);
             }
         });
+    }
 
-        studyBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                formatTaskButton(activeBtn, false);
-                formatTaskButton(studyBtn, true);
-            }
-        });
-
-        travelBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                formatTaskButton(activeBtn, false);
-                formatTaskButton(travelBtn, true);
-            }
-        });
-
-        eatBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                formatTaskButton(activeBtn, false);
-                formatTaskButton(eatBtn, true);
-            }
-        });
-
+    private void hobbyShopBtnListeners() {
         shopBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -339,24 +354,47 @@ public class MainFrame {
                 formatTaskButton(hobbyBtn, true);
             }
         });
+    }
 
-        restBtn.addActionListener(new ActionListener() {
+    private void travelEatBtnListeners() {
+        travelBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 formatTaskButton(activeBtn, false);
-                formatTaskButton(restBtn, true);
+                formatTaskButton(travelBtn, true);
+            }
+        });
+
+        eatBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                formatTaskButton(activeBtn, false);
+                formatTaskButton(eatBtn, true);
+            }
+        });
+    }
+
+    private void workStudyBtnListeners() {
+        workBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                formatTaskButton(activeBtn, false);
+                formatTaskButton(workBtn, true);
+            }
+        });
+
+        studyBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                formatTaskButton(activeBtn, false);
+                formatTaskButton(studyBtn, true);
             }
         });
     }
 
     private void formatTaskButton(JButton btn, Boolean active) {
         ImageIcon img;
-        btn.setForeground(new Color(0,0,0,0));
-        btn.setPreferredSize(new Dimension(taskBtnWidth, taskBtnHeight));
-        btn.setOpaque(false);
-        btn.setContentAreaFilled(false);
-        btn.setBorderPainted(false);
-        btn.setFocusPainted(false);
+        basicButtonFormatting(btn);
         if (active) {
             activeBtn = btn;
             if (btn.getName().equals("rest")) {
@@ -371,37 +409,20 @@ public class MainFrame {
         btn.setIcon(img);
     }
 
+    private void basicButtonFormatting(JButton btn) {
+        btn.setForeground(new Color(0,0,0,0));
+        btn.setPreferredSize(new Dimension(taskBtnWidth, taskBtnHeight));
+        btn.setOpaque(false);
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+    }
+
     private void formBody() {
-        body = new JPanel();
-        body.setOpaque(false);
-        body.setBorder(new EmptyBorder(topBarHeight + 5,sideBarWidth + 5,0,0));
-        body.setSize(FWIDTH, FHEIGHT);
-        body.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-
-
-        ImageIcon totBG = new ImageIcon("src/main/images/totBG.png");
-        tot = new JLabel();
-        tot.setIcon(totBG);
-        tot.setFont(new Font("Century Gothic", Font.PLAIN, 30));
-        tot.setForeground(new Color(44, 82, 115, 255));
-        tot.setText("<html><p>" + formatTime(totTime) + "</p></html>");
-        tot.setHorizontalTextPosition(JLabel.CENTER);
-
-        ImageIcon timeloggedBG = new ImageIcon("src/main/images/timeloggedBG.png");
-        totalTimeLogged = new JLabel();
-        totalTimeLogged.setIcon(timeloggedBG);
-        totalTimeLogged.setFont(new Font("Century Gothic", Font.PLAIN, 30));
-        totalTimeLogged.setForeground(new Color(98, 183, 104, 255));
-        totalTimeLogged.setText("<html><p>" + formatTime(sidestatsTotalTimeLogged) + "</p></html>");
-        totalTimeLogged.setHorizontalTextPosition(JLabel.CENTER);
-
-        ImageIcon averagetasklengthBG = new ImageIcon("src/main/images/averagetasklengthBG.png");
-        averageTaskLength = new JLabel();
-        averageTaskLength.setIcon(averagetasklengthBG);
-        averageTaskLength.setFont(new Font("Century Gothic", Font.PLAIN, 30));
-        averageTaskLength.setForeground(new Color(210, 102, 49, 255));
-        averageTaskLength.setText("<html><p>" + formatTime(sidestatsAverageTaskLength) + "</p></html>");
-        averageTaskLength.setHorizontalTextPosition(JLabel.CENTER);
+        formBodyPanel();
+        formTot();
+        formTimeLogged();
+        formAverageTaskLength();
 
         ImageIcon sidestatsEmptyBG = new ImageIcon("src/main/images/emptyBG.png");
         JLabel sideStatsEnd = new JLabel("", sidestatsEmptyBG, JLabel.LEFT);
@@ -423,63 +444,54 @@ public class MainFrame {
         window.add(body);
     }
 
+    private void formBodyPanel() {
+        body = new JPanel();
+        body.setOpaque(false);
+        body.setBorder(new EmptyBorder(topBarHeight + 5,sideBarWidth + 5,0,0));
+        body.setSize(FWIDTH, FHEIGHT);
+        body.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    }
+
+    private void formAverageTaskLength() {
+        ImageIcon averagetasklengthBG = new ImageIcon("src/main/images/averagetasklengthBG.png");
+        averageTaskLength = new JLabel();
+        averageTaskLength.setIcon(averagetasklengthBG);
+        averageTaskLength.setFont(new Font("Century Gothic", Font.PLAIN, 30));
+        averageTaskLength.setForeground(new Color(210, 102, 49, 255));
+        averageTaskLength.setText("<html><p>" + formatTime(sidestatsAverageTaskLength) + "</p></html>");
+        averageTaskLength.setHorizontalTextPosition(JLabel.CENTER);
+    }
+
+    private void formTimeLogged() {
+        ImageIcon timeloggedBG = new ImageIcon("src/main/images/timeloggedBG.png");
+        totalTimeLogged = new JLabel();
+        totalTimeLogged.setIcon(timeloggedBG);
+        totalTimeLogged.setFont(new Font("Century Gothic", Font.PLAIN, 30));
+        totalTimeLogged.setForeground(new Color(98, 183, 104, 255));
+        totalTimeLogged.setText("<html><p>" + formatTime(sidestatsTotalTimeLogged) + "</p></html>");
+        totalTimeLogged.setHorizontalTextPosition(JLabel.CENTER);
+    }
+
+    private void formTot() {
+        ImageIcon totBG = new ImageIcon("src/main/images/totBG.png");
+        tot = new JLabel();
+        tot.setIcon(totBG);
+        tot.setFont(new Font("Century Gothic", Font.PLAIN, 30));
+        tot.setForeground(new Color(44, 82, 115, 255));
+        tot.setText("<html><p>" + formatTime(totTime) + "</p></html>");
+        tot.setHorizontalTextPosition(JLabel.CENTER);
+    }
+
     private void buildChart() {
-        basePie = new Pie();
-        basePie.setSize(580, 580);
-        basePie.startAngle = 0;
-        basePie.arc = 360;
-        basePie.col = new Color(210, 102, 49, 255);
-
-        donutPie = new Pie();
-        donutPie.setSize(580, 580);
-        donutPie.startAngle = 0;
-        donutPie.arc = 360;
-        donutPie.size = 250;
-        donutPie.xOffset = donutPie.xOffset + (donutPie.defaultSize - donutPie.size) / 2;
-        donutPie.yOffset = donutPie.yOffset + (donutPie.defaultSize - donutPie.size) / 2;
-        donutPie.col = new Color(255,255,255,255);
-
-        workPie = new Pie();
-        workPie.setSize(580, 580);
-        workPie.startAngle = 0;
-        workPie.arc = 0;
-        workPie.col = new Color(210, 102, 49, 255);
-
-        studyPie = new Pie();
-        studyPie.setSize(580, 580);
-        studyPie.startAngle = workPie.arc;
-        studyPie.arc = 0;
-        studyPie.col = new Color(210, 49, 49, 255);
-
-        travelPie = new Pie();
-        travelPie.setSize(580, 580);
-        travelPie.startAngle = studyPie.arc + workPie.arc;
-        travelPie.arc = 0;
-        travelPie.col = new Color(210, 49, 185, 255);
-
-        eatPie = new Pie();
-        eatPie.setSize(580, 580);
-        eatPie.startAngle = travelPie.arc + studyPie.arc + workPie.arc;
-        eatPie.arc = 0;
-        eatPie.col = new Color(87, 49, 210, 255);
-
-        shopPie = new Pie();
-        shopPie.setSize(580, 580);
-        shopPie.startAngle = eatPie.arc + travelPie.arc + studyPie.arc + workPie.arc;
-        shopPie.arc = 0;
-        shopPie.col = new Color(49, 170, 210, 255);
-
-        hobbyPie = new Pie();
-        hobbyPie.setSize(580, 580);
-        hobbyPie.startAngle = shopPie.arc + eatPie.arc + travelPie.arc + studyPie.arc + workPie.arc;
-        hobbyPie.arc = 0;
-        hobbyPie.col = new Color(13, 199, 105, 255);
-
-        restPie = new Pie();
-        restPie.setSize(580, 580);
-        restPie.startAngle = hobbyPie.arc + shopPie.arc + eatPie.arc + travelPie.arc + studyPie.arc + workPie.arc;
-        restPie.arc = 0;
-        restPie.col = new Color(214, 191, 0, 255);
+        buildBasePie();
+        buildDonutPie();
+        buildWorkPie();
+        buildStudyPie();
+        buildTravelPie();
+        buildEatPie();
+        buildShopPie();
+        buildHobbyPie();
+        buildRestPie();
 
         piechart.add(donutPie);
         piechart.add(workPie);
@@ -492,15 +504,82 @@ public class MainFrame {
         piechart.add(basePie);
     }
 
-    private void updateChart() {
-        int workSum = 0;
-        int studySum = 0;
-        int travelSum = 0;
-        int eatSum = 0;
-        int shopSum = 0;
-        int hobbySum = 0;
-        int restSum = 0;
+    private void buildRestPie() {
+        restPie = new Pie();
+        restPie.setSize(580, 580);
+        restPie.startAngle = hobbyPie.arc + shopPie.arc + eatPie.arc + travelPie.arc + studyPie.arc + workPie.arc;
+        restPie.arc = 0;
+        restPie.col = new Color(214, 191, 0, 255);
+    }
 
+    private void buildHobbyPie() {
+        hobbyPie = new Pie();
+        hobbyPie.setSize(580, 580);
+        hobbyPie.startAngle = shopPie.arc + eatPie.arc + travelPie.arc + studyPie.arc + workPie.arc;
+        hobbyPie.arc = 0;
+        hobbyPie.col = new Color(13, 199, 105, 255);
+    }
+
+    private void buildShopPie() {
+        shopPie = new Pie();
+        shopPie.setSize(580, 580);
+        shopPie.startAngle = eatPie.arc + travelPie.arc + studyPie.arc + workPie.arc;
+        shopPie.arc = 0;
+        shopPie.col = new Color(49, 170, 210, 255);
+    }
+
+    private void buildEatPie() {
+        eatPie = new Pie();
+        eatPie.setSize(580, 580);
+        eatPie.startAngle = travelPie.arc + studyPie.arc + workPie.arc;
+        eatPie.arc = 0;
+        eatPie.col = new Color(87, 49, 210, 255);
+    }
+
+    private void buildTravelPie() {
+        travelPie = new Pie();
+        travelPie.setSize(580, 580);
+        travelPie.startAngle = studyPie.arc + workPie.arc;
+        travelPie.arc = 0;
+        travelPie.col = new Color(210, 49, 185, 255);
+    }
+
+    private void buildStudyPie() {
+        studyPie = new Pie();
+        studyPie.setSize(580, 580);
+        studyPie.startAngle = workPie.arc;
+        studyPie.arc = 0;
+        studyPie.col = new Color(210, 49, 49, 255);
+    }
+
+    private void buildWorkPie() {
+        workPie = new Pie();
+        workPie.setSize(580, 580);
+        workPie.startAngle = 0;
+        workPie.arc = 0;
+        workPie.col = new Color(210, 102, 49, 255);
+    }
+
+    private void buildDonutPie() {
+        donutPie = new Pie();
+        donutPie.setSize(580, 580);
+        donutPie.startAngle = 0;
+        donutPie.arc = 360;
+        donutPie.size = 250;
+        donutPie.xoffset = donutPie.xoffset + (donutPie.defaultSize - donutPie.size) / 2;
+        donutPie.yoffset = donutPie.yoffset + (donutPie.defaultSize - donutPie.size) / 2;
+        donutPie.col = new Color(255,255,255,255);
+    }
+
+    private void buildBasePie() {
+        basePie = new Pie();
+        basePie.setSize(580, 580);
+        basePie.startAngle = 0;
+        basePie.arc = 360;
+        basePie.col = new Color(210, 102, 49, 255);
+    }
+
+    private void calculateTaskSums() {
         for (TimeStamp t: timeLogger.getLogList()) {
             switch (t.getType()) {
                 case "work": workSum += t.getDuration();
@@ -519,7 +598,9 @@ public class MainFrame {
                 break;
             }
         }
+    }
 
+    private void updatePieValues() {
         workPie.arc = 360 * workSum / sidestatsTotalTimeLogged;
 
         studyPie.startAngle = workPie.arc;
@@ -541,7 +622,9 @@ public class MainFrame {
         restPie.arc = 360 * restSum / sidestatsTotalTimeLogged;
     }
 
-
+    private void resetTaskSums() {
+        workSum = studySum = travelSum = eatSum = shopSum = hobbySum = restSum = 0;
+    }
 
     private String formatTime(int n) {
         String timerTextStr = "";
