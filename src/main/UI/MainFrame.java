@@ -7,20 +7,22 @@ import model.TimeStamp;
 import utilities.TimeLogger;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class MainFrame {
 
     // FIELDS
     private static final int FWIDTH = 1280;
     private static final int FHEIGHT = 800;
+    private JPanel namescreen;
+    private int nameScreenWidth = FWIDTH;
+    private int nameScreenHeight = FHEIGHT;
     private int topBarHeight = 80;
     private int sideBarWidth = 275;
     private int bodyWidth = 1000;
@@ -34,9 +36,9 @@ public class MainFrame {
     private JPanel body;
     private int topBarAlpha = 255;
     private int sideBarAlpha = 255;
-    private String profileName = "Dhaher";
+    private String profileName = "";
     private int totTime = 0;
-    private int sidestatsTotalTimeLogged = 0;
+    private int sidestatsTotalTimeLogged = 1;
     private int sidestatsAverageTaskLength = 0;
 
     private JButton closeBtn;
@@ -51,15 +53,28 @@ public class MainFrame {
     private JLabel tot;
     private JLabel totalTimeLogged;
     private JLabel averageTaskLength;
+    private JTextField nameField;
+    private JLabel name;
+    private Pie basePie;
+    private Pie donutPie;
+    private Pie workPie;
+    private Pie studyPie;
+    private Pie travelPie;
+    private Pie eatPie;
+    private Pie shopPie;
+    private Pie hobbyPie;
+    private Pie restPie;
+    private JLabel piechart;
 
     private TimeLogger timeLogger;
 
     // PRIMARY METHODS
-    public MainFrame(TimeLogger timeLogger) throws IOException {
+    public MainFrame(TimeLogger timeLogger) throws Exception {
         this.timeLogger = timeLogger;
         formWindow();
-        formBody();
         formTopBar();
+        formNameScreen();
+        formBody();
         formSideBar();
 
         window.setVisible(true);
@@ -77,7 +92,10 @@ public class MainFrame {
             taskCount++;
         }
         totalTimeLogged.setText(formatTime(tempTTL));
+        sidestatsTotalTimeLogged = tempTTL;
         averageTaskLength.setText(formatTime(taskDurationSum / taskCount));
+        sidestatsAverageTaskLength = taskDurationSum / taskCount;
+        updateChart();
     }
 
     // HELPER METHODS
@@ -86,6 +104,7 @@ public class MainFrame {
     private void formWindow() throws IOException {
         window = new JFrame("Time Tracker");
         window.setSize(FWIDTH, FHEIGHT);
+        window.setBounds(0,0, FWIDTH, FHEIGHT);
         window.setUndecorated(true);
         window.setResizable(false);
         window.setLayout(null);
@@ -96,6 +115,51 @@ public class MainFrame {
         JLabel bg = new JLabel("", img, JLabel.CENTER);
         bg.setSize(FWIDTH, FHEIGHT);
         window.setContentPane(bg);
+    }
+
+    private void formNameScreen() throws Exception {
+        namescreen = new JPanel();
+        namescreen.setLayout(new BoxLayout(namescreen, BoxLayout.Y_AXIS));
+        namescreen.setSize(nameScreenWidth, nameScreenHeight);
+        namescreen.setBackground(new Color(44, 50, 115, topBarAlpha));
+
+        JLabel nameScreenText = new JLabel("profile name");
+        nameScreenText.setSize(FWIDTH, 200);
+        nameScreenText.setFont(new Font("Century Gothic", Font.PLAIN, 40));
+        nameScreenText.setForeground(new Color(255,255,255,255));
+
+        nameField = new JTextField(15);
+        nameField.setFont(new Font("Century Gothic", Font.PLAIN, 40));
+        nameField.setForeground(new Color(255,255,255,255));
+        nameField.setBackground(new Color(49, 55, 130, topBarAlpha));
+        //nameField.setOpaque(false);
+        nameField.setBorder(null);
+        nameField.setHorizontalAlignment(0);
+        namescreen.add(Box.createRigidArea(new Dimension(0, 350)));
+        namescreen.add(nameScreenText);
+        namescreen.add(nameField);
+        namescreen.add(Box.createRigidArea(new Dimension(0, 400)));
+        nameField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                profileName = nameField.getText();
+                name.setText("<html><p>hello   <b>" + profileName + "</b></p></html>");
+                Executors.newSingleThreadScheduledExecutor()
+                        .scheduleAtFixedRate(MainFrame.this::shrinkNameScreen,
+                                0, 17, TimeUnit.MILLISECONDS);
+            }
+        });
+
+        window.add(namescreen);
+    }
+
+    private void shrinkNameScreen() {
+        if ((int)(namescreen.getWidth() * 0.15) >= 1) {
+            namescreen.setSize((int)(namescreen.getWidth() - namescreen.getWidth() * 0.15), namescreen.getHeight());
+        } else {
+            namescreen.setSize(namescreen.getWidth() - 1, namescreen.getHeight());
+        }
+        window.repaint();
     }
 
     private void formTopBar() {
@@ -150,7 +214,7 @@ public class MainFrame {
 
     private void formSideBarName() {
         ImageIcon hello = new ImageIcon("src/main/images/hello.png");
-        JLabel name = new JLabel("<html><p>hello   <b>" + profileName + "</b></p></html>", hello, JLabel.LEFT);
+        name = new JLabel("<html><p>hello   <b>" + profileName + "</b></p></html>", hello, JLabel.LEFT);
         name.setIconTextGap(15);
         name.setFont(new Font("Century Gothic", Font.PLAIN, 20));
         name.setForeground(new Color(255, 255, 255, 255));
@@ -347,15 +411,137 @@ public class MainFrame {
         JLabel timelog = new JLabel("", timelogBG, JLabel.LEFT);
 
         ImageIcon piechartBG = new ImageIcon("src/main/images/piechartBG.png");
-        JLabel piechart = new JLabel("", piechartBG, JLabel.LEFT);
+        piechart = new JLabel("", piechartBG, JLabel.LEFT);
+        buildChart();
+
         body.add(tot);
         body.add(totalTimeLogged);
         body.add(averageTaskLength);
         body.add(sideStatsEnd);
 //        body.add(timelog);
-//        body.add(piechart);
+        body.add(piechart);
         window.add(body);
     }
+
+    private void buildChart() {
+        basePie = new Pie();
+        basePie.setSize(580, 580);
+        basePie.startAngle = 0;
+        basePie.arc = 360;
+        basePie.col = new Color(210, 102, 49, 255);
+
+        donutPie = new Pie();
+        donutPie.setSize(580, 580);
+        donutPie.startAngle = 0;
+        donutPie.arc = 360;
+        donutPie.size = 250;
+        donutPie.xOffset = donutPie.xOffset + (donutPie.defaultSize - donutPie.size) / 2;
+        donutPie.yOffset = donutPie.yOffset + (donutPie.defaultSize - donutPie.size) / 2;
+        donutPie.col = new Color(255,255,255,255);
+
+        workPie = new Pie();
+        workPie.setSize(580, 580);
+        workPie.startAngle = 0;
+        workPie.arc = 0;
+        workPie.col = new Color(210, 102, 49, 255);
+
+        studyPie = new Pie();
+        studyPie.setSize(580, 580);
+        studyPie.startAngle = workPie.arc;
+        studyPie.arc = 0;
+        studyPie.col = new Color(210, 49, 49, 255);
+
+        travelPie = new Pie();
+        travelPie.setSize(580, 580);
+        travelPie.startAngle = studyPie.arc + workPie.arc;
+        travelPie.arc = 0;
+        travelPie.col = new Color(210, 49, 185, 255);
+
+        eatPie = new Pie();
+        eatPie.setSize(580, 580);
+        eatPie.startAngle = travelPie.arc + studyPie.arc + workPie.arc;
+        eatPie.arc = 0;
+        eatPie.col = new Color(87, 49, 210, 255);
+
+        shopPie = new Pie();
+        shopPie.setSize(580, 580);
+        shopPie.startAngle = eatPie.arc + travelPie.arc + studyPie.arc + workPie.arc;
+        shopPie.arc = 0;
+        shopPie.col = new Color(49, 170, 210, 255);
+
+        hobbyPie = new Pie();
+        hobbyPie.setSize(580, 580);
+        hobbyPie.startAngle = shopPie.arc + eatPie.arc + travelPie.arc + studyPie.arc + workPie.arc;
+        hobbyPie.arc = 0;
+        hobbyPie.col = new Color(13, 199, 105, 255);
+
+        restPie = new Pie();
+        restPie.setSize(580, 580);
+        restPie.startAngle = hobbyPie.arc + shopPie.arc + eatPie.arc + travelPie.arc + studyPie.arc + workPie.arc;
+        restPie.arc = 0;
+        restPie.col = new Color(214, 191, 0, 255);
+
+        piechart.add(donutPie);
+        piechart.add(workPie);
+        piechart.add(studyPie);
+        piechart.add(travelPie);
+        piechart.add(eatPie);
+        piechart.add(shopPie);
+        piechart.add(hobbyPie);
+        piechart.add(restPie);
+        piechart.add(basePie);
+    }
+
+    private void updateChart() {
+        int workSum = 0;
+        int studySum = 0;
+        int travelSum = 0;
+        int eatSum = 0;
+        int shopSum = 0;
+        int hobbySum = 0;
+        int restSum = 0;
+
+        for (TimeStamp t: timeLogger.getLogList()) {
+            switch (t.getType()) {
+                case "work": workSum += t.getDuration();
+                break;
+                case "study": studySum += t.getDuration();
+                break;
+                case "travel": travelSum += t.getDuration();
+                break;
+                case "eat": eatSum += t.getDuration();
+                break;
+                case "shop": shopSum += t.getDuration();
+                break;
+                case "hobby": hobbySum += t.getDuration();
+                break;
+                default: restSum += t.getDuration();
+                break;
+            }
+        }
+
+        workPie.arc = 360 * workSum / sidestatsTotalTimeLogged;
+
+        studyPie.startAngle = workPie.arc;
+        studyPie.arc = 360 * studySum / sidestatsTotalTimeLogged;
+//
+        travelPie.startAngle = studyPie.arc + workPie.arc;
+        travelPie.arc = 360 * travelSum / sidestatsTotalTimeLogged;
+//
+        eatPie.startAngle = travelPie.arc + studyPie.arc + workPie.arc;
+        eatPie.arc = 360 * eatSum / sidestatsTotalTimeLogged;
+//
+        shopPie.startAngle = eatPie.arc + travelPie.arc + studyPie.arc + workPie.arc;
+        shopPie.arc = 360 * shopSum / sidestatsTotalTimeLogged;
+//
+        hobbyPie.startAngle = shopPie.arc + eatPie.arc + travelPie.arc + studyPie.arc + workPie.arc;
+        hobbyPie.arc = 360 * hobbySum / sidestatsTotalTimeLogged;
+//
+        restPie.startAngle = hobbyPie.arc + shopPie.arc + eatPie.arc + travelPie.arc + studyPie.arc + workPie.arc;
+        restPie.arc = 360 * restSum / sidestatsTotalTimeLogged;
+    }
+
+
 
     private String formatTime(int n) {
         String timerTextStr = "";
