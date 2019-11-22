@@ -17,6 +17,6 @@ public class Pie extends JComponent {
     @Override
     public void paint(Graphics p) {
         p.setColor(col);
-        p.fillArc(xoffset, yoffset,size,size,startAngle,arc);
+        p.fillArc(xoffset,yoffset,size,size,startAngle,arc);
     }
 }

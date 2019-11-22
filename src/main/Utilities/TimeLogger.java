@@ -5,14 +5,12 @@ import model.Activity;
 import model.IntervalTooSmallException;
 import model.Rest;
 import model.TimeStamp;
-import observer.TimeLoggerObserver;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Observable;
 import java.util.Scanner;
 
-public class TimeLogger extends Observable implements Saveable, Loadable {
+public class TimeLogger implements Saveable, Loadable {
 
     // FIELDS
     private int updateInterval = 17;
@@ -24,7 +22,6 @@ public class TimeLogger extends Observable implements Saveable, Loadable {
     public TimeLogger() throws Exception {
         timeLog = new ArrayList<>();
         loadData();
-        addObserver(new TimeLoggerObserver());
     }
 
     // METHODS
@@ -48,8 +45,6 @@ public class TimeLogger extends Observable implements Saveable, Loadable {
     //EFFECTS: adds a new activity to the bottom of the ArrayList
     public void newActivity(Activity t) {
         System.out.println("creating new timestamp: " + t.toString());
-        setChanged();
-        notifyObservers(timeLog);
         timeLog.add(t);
     }
 
@@ -57,8 +52,6 @@ public class TimeLogger extends Observable implements Saveable, Loadable {
     //EFFECTS: adds a new timestamp to the bottom of the ArrayList
     public void newRest(Rest t) {
         System.out.println("creating new timestamp: " + t.toString());
-        setChanged();
-        notifyObservers(timeLog);
         timeLog.add(t);
     }
 
