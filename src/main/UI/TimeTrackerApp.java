@@ -2,10 +2,8 @@ package ui;
 
 import utilities.TimeLogger;
 
-import java.sql.Time;
 import java.util.*;
 import java.util.Timer;
-import java.io.*;
 
 public class TimeTrackerApp {
 
@@ -41,7 +39,9 @@ public class TimeTrackerApp {
 
     // TimerTask Class
     private class TimestampUpdater extends TimerTask {
-
+        //MODIFIES: timeLogger, window
+        //EFFECTS: calls timeLogger.updateStamp() to update TimeStamp data, then calls window.update() to reflect new
+        //      data in GUI as appropriate
         @Override
         public void run() {
             try {

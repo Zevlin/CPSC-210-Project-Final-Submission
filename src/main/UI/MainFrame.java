@@ -87,6 +87,10 @@ public class MainFrame {
         window.setVisible(true);
     }
 
+    // REQUIRES: TimeLogger is valid and contains LogList.
+    // MODIFIES: this
+    // EFFECTS: Retrieves data from timeLogger's log list and calculates values related to time log, then feeds those
+    //      values into the appropriate GUI nodes and fields to update the app visually.
     public void update() {
         totTime = timeLogger.getStampDuration();
         tot.setText(formatTime(totTime));

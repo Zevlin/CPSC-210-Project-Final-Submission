@@ -110,7 +110,8 @@ public class TimeLogger implements Saveable, Loadable {
         }
     }
 
-    //MODIFIES:
+    //MODIFIES: this
+    //EFFECTS: loads data from data file if it exists, then prints results into console
     public ArrayList loadData() {
         ArrayList<String> list = new ArrayList<>();
         try {

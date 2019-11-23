@@ -14,6 +14,7 @@ public class Pie extends JComponent {
     public int xoffset = 107;
     public int yoffset = 70;
 
+    //EFFECTS: Draws an arc to represent a piece of the pie chart, or potentially the entire pie depending on fields
     @Override
     public void paint(Graphics p) {
         p.setColor(col);

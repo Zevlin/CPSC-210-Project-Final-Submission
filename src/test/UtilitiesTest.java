@@ -82,4 +82,5 @@ public class UtilitiesTest {
         out.close();
         assertEquals("test", logger.loadData().get(0));
     }
+
 }
