@@ -1,6 +1,7 @@
 import model.Activity;
 import model.IntervalTooSmallException;
 import model.Rest;
+import model.TimeStamp;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,11 +17,14 @@ public class UtilitiesTest {
 
     TimeLogger logger;
     Date day;
+    ArrayList<TimeStamp> tl;
 
     @BeforeEach
     public void beforeEach() throws Exception{
         logger = new TimeLogger();
         day = new Date();
+        tl = new ArrayList<>();
+        tl.add(new Activity("work", "work"));
     }
 
     @Test
@@ -62,12 +66,21 @@ public class UtilitiesTest {
     @Test
     public void saveDataTest() throws Exception {
         File f = new File(".\\Data\\timeLog.csv");
+        File d = new File(".\\Data");
         if (f.exists()) {
             f.delete();
         }
+        if (d.exists()) {
+            d.delete();
+        }
         assertFalse(f.exists());
+        assertFalse(d.exists());
         logger.saveData(new ArrayList(){});
+        assertTrue(d.exists());
         assertTrue(f.exists());
+        assertTrue(f.length() == 0);
+        logger.saveData(tl);
+        assertTrue(f.length() > 0);
     }
 
     @Test
