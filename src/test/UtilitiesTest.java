@@ -81,6 +81,19 @@ public class UtilitiesTest {
         assertTrue(f.length() == 0);
         logger.saveData(tl);
         assertTrue(f.length() > 0);
+        if (f.exists()) {
+            f.delete();
+        }
+        assertFalse(f.exists());
+        assertTrue(d.exists());
+        logger.saveData(new ArrayList(){});
+        assertTrue(d.exists());
+        assertTrue(f.exists());
+        assertTrue(f.length() == 0);
+        logger.saveData(tl);
+        assertTrue(f.length() > 0);
+        logger.saveData(new ArrayList(){});
+        assertTrue(f.length() == 0);
     }
 
     @Test

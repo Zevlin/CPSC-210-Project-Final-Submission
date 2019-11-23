@@ -15,6 +15,9 @@ public class TimeTrackerApp {
 
 
     // PRIMARY METHODS
+
+    //MODIFIES: this
+    //EFFECTS: Initializes app by calling start() method
     public static void main(String[] args) throws Exception {
         System.out.println("main method");
         TimeTrackerApp tta = new TimeTrackerApp();
