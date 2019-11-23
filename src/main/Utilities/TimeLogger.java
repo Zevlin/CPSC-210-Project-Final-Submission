@@ -94,10 +94,10 @@ public class TimeLogger implements Saveable, Loadable {
     //MODIFIES: timeLog.csv
     //EFFECTS: saves lines to csv file
     @Override
-    public void saveData(ArrayList l) {
+    public void saveData(ArrayList<TimeStamp> l) {
         try {
             PrintWriter out = new PrintWriter(new FileOutputStream(file));
-            for (TimeStamp e : timeLog) {
+            for (TimeStamp e : l) {
                 out.println(e.toString());
             }
             out.close();

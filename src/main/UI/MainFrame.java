@@ -72,6 +72,7 @@ public class MainFrame {
     private int shopSum = 0;
     private int hobbySum = 0;
     private int restSum = 0;
+    private double nameShrinkRate = 0.15;
 
     private TimeLogger timeLogger;
 
@@ -169,8 +170,10 @@ public class MainFrame {
     }
 
     private void shrinkNameScreen() {
-        if ((int)(namescreen.getWidth() * 0.15) >= 1) {
-            namescreen.setSize((int)(namescreen.getWidth() - namescreen.getWidth() * 0.15), namescreen.getHeight());
+        if ((int)(namescreen.getWidth() * nameShrinkRate) >= 1) {
+            namescreen.setSize((int)(namescreen.getWidth() - namescreen.getWidth() * nameShrinkRate),
+                    namescreen.getHeight());
+            nameShrinkRate -= 0.0025;
         } else {
             namescreen.setSize(namescreen.getWidth() - 1, namescreen.getHeight());
         }
