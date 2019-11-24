@@ -65,8 +65,8 @@ public class UtilitiesTest {
 
     @Test
     public void saveDataTest() throws Exception {
-        File f = new File(".\\data\\timeLog.csv");
-        File d = new File(".\\data");
+        File f = new File("./data/timeLog.csv");
+        File d = new File("./data");
         if (f.exists()) {
             f.delete();
         }
