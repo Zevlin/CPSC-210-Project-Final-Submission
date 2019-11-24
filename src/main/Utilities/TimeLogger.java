@@ -15,7 +15,7 @@ public class TimeLogger implements Saveable, Loadable {
     // FIELDS
     private int updateInterval = 17;
     private ArrayList<TimeStamp> timeLog;
-    private transient File dir = new File("Data");
+    private transient File dir = new File("data");
     private transient File file = new File(".\\" + dir.getPath() + "\\" + "timeLog.csv");
 
     // CONSTRUCTOR
